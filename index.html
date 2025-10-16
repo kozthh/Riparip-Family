@@ -150,6 +150,133 @@
         .family-portrait {
             background: linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 50%, #90caf9 100%);
         }
+
+        /* Add this inside your <style> block, after existing styles */
+
+        @media (max-width: 640px) {
+            body {
+                padding: 8px !important;
+            }
+            .tree {
+                padding-top: 1rem;
+            }
+            .branch {
+                padding-top: 1rem;
+                width: 100%;
+            }
+            .family-portrait {
+                max-width: 98vw;
+                padding: 8px;
+                margin-bottom: 1rem;
+            }
+            .couple {
+                flex-direction: row !important;
+                gap: 0.5rem !important;
+                width: 100% !important;
+                padding: 0 !important;
+                justify-content: center;
+                align-items: flex-start;
+            }
+            .couple > div {
+                width: 48vw !important;
+                max-width: 140px !important;
+                min-width: 100px !important;
+                padding: 0.5rem !important;
+            }
+            .children-container {
+                gap: 1rem !important;
+                padding-top: 0.2rem !important;
+            }
+            .grandchild-container {  
+                grid-template-columns: 1fr 1fr !important;
+                gap: 0.5rem !important;
+                padding-top: 0 !important;
+            }
+            .p-3, .p-1 {
+                padding: 0.5rem !important;
+            }
+        
+            img.rounded-full {
+                width: 44px !important;
+                height: 44px !important;
+            }
+            h1.text-4xl {
+                font-size: 1.2rem !important;
+            }
+            h2.text-2xl {
+                font-size: 1rem !important;
+            }
+            .mb-12 {
+                margin-bottom: 1rem !important;
+            }
+            .mb-4 {
+                margin-bottom: 0.3rem !important;
+            }
+            .mb-6 {
+                margin-bottom: 0.7rem !important;
+            }
+            .aspect-video {
+                height: 32vw !important;
+                min-height: 120px !important;
+                max-height: 180px !important;
+            }
+        }
+
+        /* Optional: Make the family-portrait gradient more sky-like and soft for mobile */
+        .family-portrait {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 40%, #90caf9 80%, #fff 100%);
+            border: 2px solid #38bdf8;
+        }
+
+        /* Add these styles inside your <style> block, after existing styles */
+
+        /* Example: Assign a unique gradient for each family portrait */
+        .family-portrait.riparip {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 40%, #90caf9 80%, #fff 100%);
+            border: 2px solid #38bdf8;
+        }
+        .family-portrait.trinidad {
+            background: linear-gradient(135deg, #ffe29f 0%, #ffa99f 40%, #ff6e7f 80%, #fff 100%);
+            border: 2px solid #fca5a5;
+        }
+        .family-portrait.delacruz {
+            background: linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 40%, #b06ab3 80%, #fff 100%);
+            border: 2px solid #b06ab3;
+        }
+        .family-portrait.saan {
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 40%, #a1c4fd 80%, #fff 100%);
+            border: 2px solid #60a5fa;
+        }
+        .family-portrait.child5 {
+            background: linear-gradient(135deg, #f8ffae 0%, #43c6ac 40%, #191654 80%, #fff 100%);
+            border: 2px solid #43c6ac;
+        }
+        .family-portrait.child6 {
+            background: linear-gradient(135deg, #ffdde1 0%, #ee9ca7 40%, #ff6a88 80%, #fff 100%);
+            border: 2px solid #ee9ca7;
+        }
+
+        /* Add to your <style> block, after existing styles */
+
+        .couple {
+            gap: 0 !important; /* No space between child and spouse */
+        }
+
+        .w-6 {
+            width: 4px !important; /* Make marriage line very short */
+        }
+
+        .h-0\.5 {
+            height: 1px !important; /* Make marriage line thinner */
+        }
+        @media (max-width: 640px) {
+            .couple {
+                gap: 0.1rem !important;
+            }
+            .w-6 {
+                width: 8px !important;
+            }
+        }
     </style>
 </head>
 <body class="p-4 md:p-8 min-h-screen bg-gradient-to-br from-sky-100 to-green-100">
@@ -192,7 +319,7 @@
                             <p class="text-xs text-gray-500 mt-1">1942 - 2012</p>
                         </div>
                         <!-- Marriage Line -->
-                        <div class="w-6 h-0.5 bg-gray-500"></div>
+                  <div class="**w-2** md:w-4 h-0.5 bg-gray-500"></div>
                         <!-- Evelyn (Alive) -->
                         <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
                             <img src="https://placehold.co/50x50/C7D2FE/4F46E5?text=E.T." alt="Evelyn Thompson Photo" class="rounded-full mb-2 border-2 border-indigo-400">
@@ -208,7 +335,7 @@
                         <!-- BRANCH 1 (Child 1 Family - 5 Grandchildren) -->
                         <div class="branch max-w-sm mx-auto">
                              <!-- NEW: Family Portrait Container -->
-                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] riparip">
                                 <div class="text-xs font-semibold text-teal-700 mb-2">Riparip family</div>
                                 <img 
                                     src="https://placehold.co/224x100/A7F3D0/047857?text=C1+Family+Photo" 
@@ -288,7 +415,7 @@
                         <!-- BRANCH 2 (Child 2 Family - 4 Grandchildren) -->
                         <div class="branch max-w-sm mx-auto">
                             <!-- NEW: Family Portrait Container -->
-                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] trinidad">
                                 <div class="text-xs font-semibold text-teal-700 mb-2">Trinidad Family Unit</div>
                                 <img 
                                     src="https://placehold.co/224x100/A7F3D0/047857?text=C2+Family+Photo" 
@@ -359,7 +486,7 @@
                         <!-- BRANCH 3 (Child 3 Family - 2 Grandchildren) -->
                         <div class="branch max-w-sm mx-auto">
                             <!-- NEW: Family Portrait Container -->
-                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] delacruz">
                                 <div class="text-xs font-semibold text-teal-700 mb-2">Dela-Cruz Family Unit</div>
                                 <img 
                                     src="family picture\delacruz.jpg" 
@@ -417,7 +544,7 @@
                         <!-- BRANCH 4 (Child 4 Family - 3 Grandchildren) -->
                         <div class="branch max-w-sm mx-auto">
                             <!-- NEW: Family Portrait Container -->
-                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] saan">
                                 <div class="text-xs font-semibold text-teal-700 mb-2">Saan Family Unit</div>
                                 <img 
                                     src="family picture\saan.jpg" 
@@ -481,7 +608,7 @@
                         <!-- BRANCH 5 (Child 5 Family - No Children) -->
                         <div class="branch max-w-sm mx-auto">
                             <!-- NEW: Family Portrait Container -->
-                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] child5">
                                 <div class="text-xs font-semibold text-teal-700 mb-2">Child 5's Family Unit</div>
                                 <img 
                                     src="https://placehold.co/224x100/A7F3D0/047857?text=C5+Family+Photo" 
@@ -514,8 +641,8 @@
                         <!-- BRANCH 6 (Child 6 Family - No Children) -->
                         <div class="branch max-w-sm mx-auto">
                             <!-- NEW: Family Portrait Container -->
-                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
-                                <div class="text-xs font-semibold text-teal-700 mb-2">penidng</div>
+                            <div class="family-portrait relative mb-6 z-10 p-3 rounded-xl shadow-lg border-2 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02] child6">
+                                <div class="text-xs font-semibold text-teal-700 mb-2">Child 6's Family Unit</div>
                                 <img 
                                     src="https://placehold.co/224x100/A7F3D0/047857?text=C6+Family+Photo" 
                                     alt="Child 6's Family Group Photo" 
@@ -526,15 +653,19 @@
                             <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10">
                                 <!-- Child 6 -->
                                 <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
-                                    <img src="" alt="Child 6 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <img src="https://placehold.co/50x50/C7D2FE/4F46E5?text=C6" alt="Child 6 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
                                     <p class="font-bold text-sm text-gray-800 truncate">pending</p>
                                     <p class="text-xs text-indigo-600 font-medium mt-1">(Youngest)</p>
                                     <p class="text-xs text-gray-500 mt-1">pending</p>
                                 </div>
                                 <!-- Marriage Line -->
-                             
-                                <!-- Spouse 6 (Deceased) -->
-               
+                                <div class="w-6 h-0.5 bg-gray-500"></div>
+                                <!-- Spouse 6 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="https://placehold.co/50x50/C7D2FE/4F46E5?text=S6" alt="Spouse 6 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">pending</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Spouse)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending</p>
                                 </div>
                             </div>
                             <!-- No line-v-connector or children-container here -->
