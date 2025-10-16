@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generational Family Tree (Mobile-First Responsive)</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(
+                to left,
+                #ffecd2 0%,    /* light yellow */
+                #fcb69f 25%,   /* peach */
+                #ff6e7f 50%,   /* pinkish */
+                #b06ab3 75%,   /* purple */
+                #2c3e50 100%   /* deep blue */
+            );
+        }
+
+        /* --- Custom Tree Line Styles (CSS Only) --- */
+        
+        /* Base line color and thickness */
+        .line {
+            background-color: #4a5568;
+        }
+
+        /* The overall tree structure container */
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2rem; /* Space for the root connector */
+        }
+
+        /* Container for a single parent/couple and their children */
+        .branch {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 2rem; /* Space for vertical line from parent */
+            /* Ensure branches take full width on mobile if children are stacked */
+            width: 100%; 
+        }
+
+        /* 1. Vertical line from the PARENT couple down to the children-container/sibling line */
+        .branch::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: 2rem; /* Length of the line down to the sibling line */
+            width: 2px;
+            @apply line;
+        }
+
+        /* The root element doesn't need the top vertical line */
+        .tree > .branch::before {
+            content: none;
+        }
+
+        /* Custom vertical connector div (G2 parent down to G3 children) */
+        .line-v-connector {
+            width: 2px;
+            height: 1.5rem; /* Shorter line for better flow */
+            @apply bg-gray-600 mb-4 mx-auto;
+        }
+
+        /* --- MOBILE LAYOUT (DEFAULT) --- */
+
+        /* The main container for siblings: stack vertically on mobile */
+        .children-container {
+            display: flex;
+            flex-direction: column; 
+            align-items: center;
+            gap: 2rem; /* Vertical spacing between stacked siblings */
+            position: relative;
+            padding-top: 0.5rem;
+            width: 100%; /* Take full width */
+        }
+
+        /* Grandchildren container override (G3): Remove the default mobile vertical padding 
+           because the connection is now handled by the .line-v-connector div */
+        .grandchild-container {
+            padding-top: 0 !important; 
+        }
+
+        /* Mobile: Hide horizontal line (it's not needed when stacked) */
+        .children-container::before {
+            content: none;
+        }
+        
+        /* Mobile: Vertical line from the container above down to the child box */
+        /* This applies to G2 child boxes connecting to G1 sibling line */
+        .branch > .couple::before {
+            content: '';
+            position: absolute;
+            top: -0.5rem; 
+            left: 50%;
+            transform: translateX(-50%);
+            height: 0.5rem; 
+            width: 2px;
+            z-index: 10;
+            @apply line;
+        }
+
+        /* --- DESKTOP LAYOUT (md and up) --- */
+        
+        @media (min-width: 768px) {
+            
+            .branch {
+                width: auto; /* Allow branches to size based on content on desktop */
+            }
+
+            .children-container {
+                flex-direction: row; /* Switch back to horizontal row */
+                gap: 4rem; /* Restore wide gap */
+                padding-top: 2.5rem; /* Space for horizontal line */
+            }
+
+            /* Grandchildren container (G3): On desktop, we still need space for the horizontal sibling line */
+            .grandchild-container {
+                padding-top: 2.5rem !important; 
+            }
+
+            /* 2. Horizontal line connecting all sibling branches (Desktop only) */
+            .children-container::before {
+                content: '';
+                position: absolute;
+                top: 2rem;
+                left: 0;
+                right: 0;
+                height: 2px;
+                z-index: 0;
+                @apply line;
+            }
+            
+            /* 3. Vertical lines from the horizontal line down to each CHILD branch (Desktop only) */
+            .branch > .couple::before {
+                top: 0;
+                height: 2rem; 
+            }
+        }
+
+        .family-portrait {
+            background: linear-gradient(135deg, #e0f7fa 0%, #b3e5fc 50%, #90caf9 100%);
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 min-h-screen bg-gradient-to-br from-sky-100 to-green-100">
+
+    <header class="text-center mb-10">
+        <h1 class="text-4xl font-extrabold text-gray-800 tracking-tight">The Riparip Family Tree</h1>
+        <p class="text-lg text-gray-500 mt-2">Our story is written in the hearts we share and the memories we make.</p>
+    </header>
+
+    <!-- Family Picture Section -->
+    <div class="mb-12 max-w-4xl mx-auto">
+        <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100">
+            <h2 class="text-2xl font-semibold text-center text-gray-700 mb-4">Family Portrait</h2>
+            <div class="aspect-video relative overflow-hidden rounded-xl border-4 border-indigo-200">
+                <img 
+                    src="family picture\Riparip.jpg" 
+                    alt="Main Family Group Photo" 
+                    class="w-full h-full object-cover transition-all duration-500 hover:opacity-80"
+                    onerror="this.onerror=null;this.src='https://placehold.co/800x450/4B5563/FFFFFF?text=Photo+Unavailable';"
+                >
+            </div>
+            <p class="text-center text-gray-500 mt-3 text-sm">All loving family members.</p>
+        </div>
+    </div>
+    <!-- END Family Picture Section -->
+
+    <!-- Main Tree Container - No JS for drag/zoom -->
+    <div class="p-4 rounded-xl shadow-2xl bg-white border border-gray-200 overflow-hidden">
+        <div class="tree w-max md:w-full mx-auto">
+            <!-- Ensure max width allows for horizontal scrolling if needed on desktop, but mobile forces vertical stacking -->
+            <div class="w-full"> 
+
+                <!-- GENERATION 1: Thomas (1940-2018) & Evelyn (1945-) -->
+                <div class="branch">
+                    <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10 w-full md:w-auto">
+                        <!-- Thomas (Deceased) -->
+                        <div class="p-3 rounded-xl shadow-lg border border-red-400 bg-red-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                            <img src="https://placehold.co/50x50/FCA5A5/B91C1C?text=T.T." alt="Thomas Thompson Photo" class="rounded-full mb-2 border-2 border-red-400">
+                            <p class="font-bold text-sm text-gray-800 truncate">Ernesto A. Riparip</p>
+                            <p class="text-xs text-red-600 font-medium mt-1">LOLO</p>
+                            <p class="text-xs text-gray-500 mt-1">1942 - 2012</p>
+                        </div>
+                        <!-- Marriage Line -->
+                        <div class="w-6 h-0.5 bg-gray-500"></div>
+                        <!-- Evelyn (Alive) -->
+                        <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                            <img src="https://placehold.co/50x50/C7D2FE/4F46E5?text=E.T." alt="Evelyn Thompson Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                            <p class="font-bold text-sm text-gray-800 truncate">Yolanda A. Riparip</p>
+                            <p class="text-xs text-indigo-600 font-medium mt-1">Lola</p>
+                            <p class="text-xs text-gray-500 mt-1">1950 - Present</p>
+                        </div>
+                    </div>
+
+                    <!-- Children of Thomas & Evelyn (6 Siblings) - GENERATION 2 -->
+                    <div class="children-container">
+
+                        <!-- BRANCH 1 (Child 1 Family - 5 Grandchildren) -->
+                        <div class="branch max-w-sm mx-auto">
+                             <!-- NEW: Family Portrait Container -->
+                            <div class="family-portrait relative mb-6 z-10 p-3 bg-white rounded-xl shadow-lg border-2 border-teal-400 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div class="text-xs font-semibold text-teal-700 mb-2">Riparip family</div>
+                                <img 
+                                    src="https://placehold.co/224x100/A7F3D0/047857?text=C1+Family+Photo" 
+                                    alt="Child 1's Family Group Photo" 
+                                    class="w-full h-auto rounded-lg object-cover border border-teal-200"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/224x100/4B5563/FFFFFF?text=Photo+Missing';"
+                                >
+                            </div>
+                            <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10">
+                                <!-- Child 1 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\eduardo.jpg" alt="Child 1 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Eduardo P. Riparip</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Eldest)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending - Present</p>
+                                </div>
+                                <!-- Marriage Line -->
+                                <div class="w-6 h-0.5 bg-gray-500"></div>
+                                <!-- Spouse 1 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\Nemelta.jpg" alt="Spouse 1 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Nemelta P. Riparip</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Spouse)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending - Present</p>
+                                </div>
+                            </div>
+
+                            <!-- NEW: Vertical line connecting G2 Parent down to G3 Siblings -->
+                            <div class="line-v-connector"></div> 
+
+                            <!-- Grandchildren (5 children) - GENERATION 3 -->
+                            <div class="children-container grandchild-container md:flex-row !gap-x-4 md:!gap-x-8 grid grid-cols-3 md:grid-cols-5 w-full">
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\johnrey.jpg" alt="Grandchild 1.1 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">John Ray Riparip</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\sharlyn.jpg" alt="Grandchild 1.2 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Sharlyn Riparip Orial</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\jennifer.jpg" alt="Grandchild 1.3 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Jennifer Sambrano</p>
+                                            <p class="font-bold text-xs text-gray-800 truncate">Riparip</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\nico.jpg" alt="Grandchild 1.4 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Nico Riparip</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\mica.jpg" alt="Grandchild 1.5 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Mica Riparip</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- BRANCH 2 (Child 2 Family - 4 Grandchildren) -->
+                        <div class="branch max-w-sm mx-auto">
+                            <!-- NEW: Family Portrait Container -->
+                            <div class="family-portrait relative mb-6 z-10 p-3 bg-white rounded-xl shadow-lg border-2 border-teal-400 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div class="text-xs font-semibold text-teal-700 mb-2">Trinidad Family Unit</div>
+                                <img 
+                                    src="https://placehold.co/224x100/A7F3D0/047857?text=C2+Family+Photo" 
+                                    alt="Child 2's Family Group Photo" 
+                                    class="w-full h-auto rounded-lg object-cover border border-teal-200"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/224x100/4B5563/FFFFFF?text=Photo+Missing';"
+                                >
+                            </div>
+                            <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10">
+                                <!-- Child 2 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\itang.jpg" alt="Child 2 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Juanita Trinidad</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(2nd Child)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending - 2020</p>
+                                </div>
+                                <!-- Marriage Line -->
+                                <div class="w-6 h-0.5 bg-gray-500"></div>
+                                <!-- Spouse 2 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\emil.jpg" alt="Spouse 2 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Emil Trinidad</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Spouse)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending - Present</p>
+                                </div>
+                            </div>
+                            
+                            <!-- NEW: Vertical line connecting G2 Parent down to G3 Siblings -->
+                            <div class="line-v-connector"></div> 
+
+                            <!-- Grandchildren (4 children) - GENERATION 3 -->
+                            <div class="children-container grandchild-container md:flex-row !gap-x-4 md:!gap-x-8 grid grid-cols-2 md:grid-cols-4 w-full">
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\maymay.jpg" alt="Grandchild 2.1 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Mary Trinidad Empleo </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\paolo.jpg" alt="Grandchild 2.2 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Ian Paolo Trinidad</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\christianto.jpg" alt="Grandchild 2.3 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Christian P. Trinidad</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\ella.jpg" alt="Grandchild 2.4 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Sophia Angela Trinidad</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- BRANCH 3 (Child 3 Family - 2 Grandchildren) -->
+                        <div class="branch max-w-sm mx-auto">
+                            <!-- NEW: Family Portrait Container -->
+                            <div class="family-portrait relative mb-6 z-10 p-3 bg-white rounded-xl shadow-lg border-2 border-teal-400 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div class="text-xs font-semibold text-teal-700 mb-2">Dela-Cruz Family Unit</div>
+                                <img 
+                                    src="family picture\delacruz.jpg" 
+                                    alt="Child 3's Family Group Photo" 
+                                    class="w-full h-auto rounded-lg object-cover border border-teal-200"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/224x100/4B5563/FFFFFF?text=Photo+Missing';"
+                                >
+                            </div>
+                            <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10">
+                                <!-- Child 3 (Deceased) -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\arlene.jpg" alt="Child 3 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Arlene Riparip</p>
+                                    <p class="font-bold text-sm text-gray-800 truncate">Dela-cruz </p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">3rd Child</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending - Present</p>
+                                </div>
+                                <!-- Marriage Line -->
+                                <div class="w-6 h-0.5 bg-gray-500"></div>
+                                <!-- Spouse 3 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\ruel.jpg" alt="Spouse 3 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Ruel Torres </p>
+                                    <p class="font-bold text-sm text-gray-800 truncate">DelaCruz </p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Spouse)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending - Present</p>
+                                </div>
+                            </div>
+
+                            <!-- NEW: Vertical line connecting G2 Parent down to G3 Siblings -->
+                            <div class="line-v-connector"></div> 
+
+                            <!-- Grandchildren (2 children) - GENERATION 3 -->
+                            <div class="children-container grandchild-container md:flex-row !gap-x-4 md:!gap-x-8 grid grid-cols-2 md:grid-cols-2 w-full">
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\avanna.jpg" alt="Grandchild 3.1 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Andrea Dela Cruz </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\andrea.jpg" alt="Grandchild 3.2 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Avanna Roe </p>
+                                            <p class="font-bold text-xs text-gray-800 truncate">Dela Cruz </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BRANCH 4 (Child 4 Family - 3 Grandchildren) -->
+                        <div class="branch max-w-sm mx-auto">
+                            <!-- NEW: Family Portrait Container -->
+                            <div class="family-portrait relative mb-6 z-10 p-3 bg-white rounded-xl shadow-lg border-2 border-teal-400 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div class="text-xs font-semibold text-teal-700 mb-2">Saan Family Unit</div>
+                                <img 
+                                    src="family picture\saan.jpg" 
+                                    alt="Child 4's Family Group Photo" 
+                                    class="w-full h-auto rounded-lg object-cover border border-teal-200"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/224x100/4B5563/FFFFFF?text=Photo+Missing';"
+                                >
+                            </div>
+                            <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10">
+                                <!-- Child 4 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\jocelyn.jpg" alt="Child 4 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Jocelyn Riparip </p>
+                                    <p class="font-bold text-sm text-gray-800 truncate">Saan</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Child)</p>
+                                    <p class="text-xs text-gray-500 mt-1">1981 - Present</p>
+                                </div>
+                                <!-- Marriage Line -->
+                                <div class="w-6 h-0.5 bg-gray-500"></div>
+                                <!-- Spouse 4 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="family picture\samuel.jpg" alt="Spouse 4 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">Samuel Saan</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Spouse)</p>
+                                    <p class="text-xs text-gray-500 mt-1">1975 - Present</p>
+                                </div>
+                            </div>
+
+                            <!-- NEW: Vertical line connecting G2 Parent down to G3 Siblings -->
+                            <div class="line-v-connector"></div> 
+
+                            <!-- Grandchildren (3 children) - GENERATION 3 -->
+                            <div class="children-container grandchild-container md:flex-row !gap-x-4 md:!gap-x-8 grid grid-cols-3 md:grid-cols-3 w-full">
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\nhicole.jpg" alt="Grandchild 4.1 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Nhicole Saan</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\kenneth.jpg" alt="Grandchild 4.2 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Kenneth Saan</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="branch md:w-auto !pt-0">
+                                    <div class="couple relative mb-4 z-10">
+                                        <div class="p-1 rounded-lg shadow border border-indigo-300 bg-indigo-50 text-center w-full flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-lg">
+                                            <img src="family picture\kyle.jpg" alt="Grandchild 4.3 Photo" class="rounded-full mb-1 border border-indigo-400">
+                                            <p class="font-bold text-xs text-gray-800 truncate">Ian kyle Saan</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- BRANCH 5 (Child 5 Family - No Children) -->
+                        <div class="branch max-w-sm mx-auto">
+                            <!-- NEW: Family Portrait Container -->
+                            <div class="family-portrait relative mb-6 z-10 p-3 bg-white rounded-xl shadow-lg border-2 border-teal-400 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div class="text-xs font-semibold text-teal-700 mb-2">Child 5's Family Unit</div>
+                                <img 
+                                    src="https://placehold.co/224x100/A7F3D0/047857?text=C5+Family+Photo" 
+                                    alt="Child 5's Family Group Photo" 
+                                    class="w-full h-auto rounded-lg object-cover border border-teal-200"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/224x100/4B5563/FFFFFF?text=Photo+Missing';"
+                                >
+                            </div>
+                            <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10">
+                                <!-- Child 5 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="https://placehold.co/50x50/C7D2FE/4F46E5?text=C5" alt="Child 5 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">pending</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Child)</p>
+                                    <p class="text-xs text-gray-500 mt-1">1976 - Present</p>
+                                </div>
+                                <!-- Marriage Line -->
+                                <div class="w-6 h-0.5 bg-gray-500"></div>
+                                <!-- Spouse 5 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="https://placehold.co/50x50/C7D2FE/4F46E5?text=S5" alt="Spouse 5 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">pending</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Spouse)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending - Present</p>
+                                </div>
+                            </div>
+                            <!-- No line-v-connector or children-container here -->
+                        </div>
+                        
+                        <!-- BRANCH 6 (Child 6 Family - No Children) -->
+                        <div class="branch max-w-sm mx-auto">
+                            <!-- NEW: Family Portrait Container -->
+                            <div class="family-portrait relative mb-6 z-10 p-3 bg-white rounded-xl shadow-lg border-2 border-teal-400 w-full max-w-[300px] md:w-56 mx-auto text-center cursor-pointer hover:shadow-xl transition-all duration-300 hover:scale-[1.02]">
+                                <div class="text-xs font-semibold text-teal-700 mb-2">penidng</div>
+                                <img 
+                                    src="https://placehold.co/224x100/A7F3D0/047857?text=C6+Family+Photo" 
+                                    alt="Child 6's Family Group Photo" 
+                                    class="w-full h-auto rounded-lg object-cover border border-teal-200"
+                                    onerror="this.onerror=null;this.src='https://placehold.co/224x100/4B5563/FFFFFF?text=Photo+Missing';"
+                                >
+                            </div>
+                            <div class="couple relative flex items-center justify-center space-x-4 mb-4 z-10">
+                                <!-- Child 6 -->
+                                <div class="p-3 rounded-xl shadow-lg border border-indigo-400 bg-indigo-50 text-center w-[140px] md:w-[160px] flex-shrink-0 flex flex-col items-center cursor-pointer transition-all duration-200 hover:scale-[1.15] hover:shadow-xl">
+                                    <img src="" alt="Child 6 Photo" class="rounded-full mb-2 border-2 border-indigo-400">
+                                    <p class="font-bold text-sm text-gray-800 truncate">pending</p>
+                                    <p class="text-xs text-indigo-600 font-medium mt-1">(Youngest)</p>
+                                    <p class="text-xs text-gray-500 mt-1">pending</p>
+                                </div>
+                                <!-- Marriage Line -->
+                             
+                                <!-- Spouse 6 (Deceased) -->
+               
+                                </div>
+                            </div>
+                            <!-- No line-v-connector or children-container here -->
+                        </div>
+
+                    </div>
+                </div>
+                <!-- End of Tree -->
+            </div>
+        </div>
+    </div>
+</body>
+</html>
